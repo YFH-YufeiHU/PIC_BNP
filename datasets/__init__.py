@@ -1,2 +1,1 @@
-from .voc import VOCSegmentation
-from .funsd import Cityscapes
+from .funsd import train_dataloader,eval_dataloader

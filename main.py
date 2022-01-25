@@ -2,6 +2,17 @@ from transformers import LayoutLMForTokenClassification
 import torch
 from transformers import AdamW
 from tqdm import tqdm
+from datasets.funsd import train_dataloader,eval_dataloader
+
+def get_labels(path):
+    with open(path, "r") as f:
+        labels = f.read().splitlines()
+    if "O" not in labels:
+        labels = ["O"] + labels
+    return labels
+
+labels = get_labels("data/labels.txt")
+num_labels = len(labels)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

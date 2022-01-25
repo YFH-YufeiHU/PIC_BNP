@@ -1,7 +1,8 @@
 import numpy as np
-from PIL import Image
-import numpy as np
-import pytesseract
+from transformers import LayoutLMForTokenClassification
+import torch
+from datasets.funsd import eval_dataloader
+import tqdm
 
 from seqeval.metrics import (
     classification_report,
@@ -14,6 +15,9 @@ eval_loss = 0.0
 nb_eval_steps = 0
 preds = None
 out_label_ids = None
+
+model = LayoutLMForTokenClassification.from_pretrained("microsoft/layoutlm-base-uncased", num_labels=num_labels)
+model.to(device)
 
 # put model in evaluation mode
 model.eval()
@@ -64,49 +68,5 @@ results = {
     "recall": recall_score(out_label_list, preds_list),
     "f1": f1_score(out_label_list, preds_list),
 }
+
 print(results)
-
-image = Image.open("/content/data/testing_data/images/83443897.png")
-image = image.convert("RGB")
-
-width, height = image.size
-w_scale = 1000 / width
-h_scale = 1000 / height
-
-ocr_df = pytesseract.image_to_data(image, output_type='data.frame') \
- \
-    ocr_df = ocr_df.dropna() \
-        .assign(left_scaled=ocr_df.left * w_scale,
-                width_scaled=ocr_df.width * w_scale,
-                top_scaled=ocr_df.top * h_scale,
-                height_scaled=ocr_df.height * h_scale,
-                right_scaled=lambda x: x.left_scaled + x.width_scaled,
-                bottom_scaled=lambda x: x.top_scaled + x.height_scaled)
-
-float_cols = ocr_df.select_dtypes('float').columns
-ocr_df[float_cols] = ocr_df[float_cols].round(0).astype(int)
-ocr_df = ocr_df.replace(r'^\s*$', np.nan, regex=True)
-ocr_df = ocr_df.dropna().reset_index(drop=True)
-ocr_df[:20]
-
-
-words = list(ocr_df.text)
-coordinates = ocr_df[['left', 'top', 'width', 'height']]
-actual_boxes = []
-for idx, row in coordinates.iterrows():
-  x, y, w, h = tuple(row) # the row comes in (left, top, width, height) format
-  actual_box = [x, y, x+w, y+h] # we turn it into (left, top, left+widght, top+height) to get the actual box
-  actual_boxes.append(actual_box)
-
-def normalize_box(box, width, height):
-    return [
-        int(1000 * (box[0] / width)),
-        int(1000 * (box[1] / height)),
-        int(1000 * (box[2] / width)),
-        int(1000 * (box[3] / height)),
-    ]
-
-boxes = []
-for box in actual_boxes:
-  boxes.append(normalize_box(box, width, height))
-boxes
