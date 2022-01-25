@@ -11,3 +11,13 @@ In addition, you should install other packages which are:
 matplotlib
 torch
 pip
+
+After these, you can do the training with the following command.
+~~~bash
+python main.py
+~~~
+
+Similarly, you can do the evaluation after training.
+~~~bash
+python evaluate.py
+~~~
