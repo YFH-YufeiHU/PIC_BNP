@@ -8,9 +8,9 @@ pip install ./transformers
 ~~~
 
 In addition, you should install other packages which are:
-matplotlib
-torch
-pip
+* matplotlib
+* torch
+* pip
 
 After these, you can do the training with the following command.
 ~~~bash
