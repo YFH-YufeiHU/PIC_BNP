@@ -6,3 +6,8 @@ pip install unilm/layoutlm
 git clone https://github.com/huggingface/transformers
 pip install ./transformers
 ~~~
+
+In addition, you should install other packages which are:
+matplotlib
+torch
+pip
